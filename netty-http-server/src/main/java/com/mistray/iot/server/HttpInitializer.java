@@ -6,6 +6,10 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.HttpServerExpectContinueHandler;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 
 /**
  * @author MistRay
@@ -14,7 +18,15 @@ import io.netty.handler.codec.http.HttpServerExpectContinueHandler;
  * @create 2019年09月10日 11:16
  * @Desc
  */
+@Component
+@Slf4j
 public class HttpInitializer extends ChannelInitializer<SocketChannel> {
+
+    @Autowired
+    @Qualifier("HttpChannelHandler")
+    private HttpChannelHandler httpChannelHandler;
+
+
     @Override
     protected void initChannel(SocketChannel ch) throws Exception {
         ChannelPipeline pipeline = ch.pipeline();
@@ -27,6 +39,6 @@ public class HttpInitializer extends ChannelInitializer<SocketChannel> {
          */
         pipeline.addLast(new HttpObjectAggregator(1024*1024));
         pipeline.addLast(new HttpServerExpectContinueHandler());
-        pipeline.addLast(new HttpChannelHandler());
+        pipeline.addLast(httpChannelHandler);
     }
 }

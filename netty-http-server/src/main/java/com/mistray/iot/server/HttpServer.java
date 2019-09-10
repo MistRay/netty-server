@@ -9,6 +9,8 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -26,8 +28,11 @@ import javax.annotation.PreDestroy;
 @Slf4j
 public class HttpServer {
 
-    @Value("${http.port}")
+    @Value("${netty.http.port}")
     private Integer PORT;
+
+    @Autowired
+    private HttpInitializer httpInitializer;
 
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
@@ -45,7 +50,7 @@ public class HttpServer {
         b.group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
 //                .handler(new LoggingHandler(LogLevel.INFO))
-                .childHandler(new HttpInitializer());
+                .childHandler(httpInitializer);
         serverChannel = b.bind(PORT).sync().channel();
         log.info("Netty http server listening on port ", PORT);
         log.info("HTTP transport started!");
