@@ -147,7 +147,7 @@ public class HttpChannelHandler extends SimpleChannelInboundHandler<HttpObject> 
     }
 
     private String getContentType() {
-        String typeStr = headers.get("Content-Type").toString();
+        String typeStr = headers.get("Content-Type");
         String[] list = typeStr.split(";");
         return list[0];
     }
