@@ -46,8 +46,8 @@ public class HttpChannelHandler extends SimpleChannelInboundHandler<HttpObject> 
     protected void channelRead0(ChannelHandlerContext ctx, HttpObject msg) throws Exception {
         RequestObject requestObject = new RequestObject();
         requestObject.setDate(new Date());
-        if (msg instanceof HttpRequest) {
-            request = (HttpRequest) msg;
+        if (msg instanceof FullHttpRequest) {
+            request = (FullHttpRequest) msg;
             headers = request.headers();
             String uri = request.uri();
             log.info("http uri: " + uri);
@@ -59,7 +59,6 @@ public class HttpChannelHandler extends SimpleChannelInboundHandler<HttpObject> 
             if (method.equals(HttpMethod.GET)) {
                 // 查询字符集
                 QueryStringDecoder queryDecoder = new QueryStringDecoder(uri, Charsets.toCharset(CharEncoding.UTF_8));
-
                 doService(queryDecoder);
                 requestObject.setMethod("get");
             } else if (method.equals(HttpMethod.POST)) {
@@ -68,12 +67,10 @@ public class HttpChannelHandler extends SimpleChannelInboundHandler<HttpObject> 
                 //根据不同的Content_Type处理body数据
                 dealWithContentType();
                 requestObject.setMethod("post");
-
             }
 
             JSONSerializer jsonSerializer = new JSONSerializer();
             byte[] content = jsonSerializer.serialize(requestObject);
-
             FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK, Unpooled.wrappedBuffer(content));
             response.headers().set(CONTENT_TYPE, "text/plain");
             response.headers().setInt(CONTENT_LENGTH, response.content().readableBytes());
@@ -136,7 +133,7 @@ public class HttpChannelHandler extends SimpleChannelInboundHandler<HttpObject> 
     }
 
     /**
-     * 执行真正的业务逻辑
+     * 解码
      *
      * @param queryDecoder 解码器
      */
